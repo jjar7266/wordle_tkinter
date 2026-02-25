@@ -156,12 +156,18 @@ class Keyboard:
     It does NOT handle game logic - only UI buttons.
     """
 
-    def __init__(self, root, on_key, on_backspace):
+    def __init__(self, root, on_key, on_backspace, on_enter):
         self.root = root
         self.on_key = on_key  # callback function
         self.on_backspace = on_backspace
+        self.on_enter = on_enter
+        self.buttons = {}
 
-        layout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM←"]
+        layout = [
+            list("QWERTYUIOP"),
+            list("ASDFGHJKL"),
+            ["ENTER"] + list("ZXCVBNM") + ["←"]
+        ]
 
         frame = tk.Frame(root)
         frame.pack()
@@ -169,6 +175,7 @@ class Keyboard:
         for keyboard_row in layout:
             row_frame = tk.Frame(frame)
             row_frame.pack()
+
             for letter in keyboard_row:
                 if letter == "←":
                     button = tk.Button(
@@ -176,6 +183,13 @@ class Keyboard:
                         text="←",
                         width=4,
                         command=self.on_backspace
+                    )
+                elif letter == "ENTER":
+                    button = tk.Button(
+                        row_frame,
+                        text="ENTER",
+                        width=6,
+                        command=self.on_enter
                     )
                 else:
                     button = tk.Button(
@@ -185,6 +199,7 @@ class Keyboard:
                     command=lambda selected_letter=letter: self.on_key(selected_letter),
                 )
                 button.pack(side="left", padx=2, pady=2)
+                self.buttons[letter] = button
 
 # --------------------------------------------------------------------
 # WordleGame: Main controller
@@ -221,7 +236,9 @@ class WordleGame:
         # Create the UI components
 
         self.grid = TileGrid(root, self.max_guesses, self.word_length)
-        self.keyboard = Keyboard(root, self.handle_key, self.handle_backspace)
+        self.keyboard = Keyboard(root, self.handle_key, self.handle_backspace,
+                                 self.handle_enter)
+
 
         # Track typing state
 
@@ -251,6 +268,7 @@ class WordleGame:
         self.current_column_index += 1
 
     def handle_backspace(self):
+        print("BACKSPACE pressed")  # Debugging statement to verify backspace presses
         if self.current_column_index == 0:
             return
 
@@ -260,6 +278,13 @@ class WordleGame:
         tile.config(text="")
 
         self.current_guess_text = self.current_guess_text[:-1]
+
+    def handle_enter(self):
+        print("ENTER pressed")  # Debugging statement to verify enter presses
+        # your upcoming enter logic here
+
+        if len(self.current_guess_text) < self.word_length:
+            return  # later: yellow warning
 
 # --------------------------------------------------------------------
 # Entry point
