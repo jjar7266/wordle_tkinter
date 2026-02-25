@@ -156,11 +156,12 @@ class Keyboard:
     It does NOT handle game logic - only UI buttons.
     """
 
-    def __init__(self, root, on_key):
+    def __init__(self, root, on_key, on_backspace):
         self.root = root
         self.on_key = on_key  # callback function
+        self.on_backspace = on_backspace
 
-        layout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]
+        layout = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM←"]
 
         frame = tk.Frame(root)
         frame.pack()
@@ -169,7 +170,15 @@ class Keyboard:
             row_frame = tk.Frame(frame)
             row_frame.pack()
             for letter in keyboard_row:
-                button = tk.Button(
+                if letter == "←":
+                    button = tk.Button(
+                        row_frame,
+                        text="←",
+                        width=4,
+                        command=self.on_backspace
+                    )
+                else:
+                    button = tk.Button(
                     row_frame,
                     text=letter,
                     width=4,
@@ -212,20 +221,45 @@ class WordleGame:
         # Create the UI components
 
         self.grid = TileGrid(root, self.max_guesses, self.word_length)
-        self.keyboard = Keyboard(root, self.handle_key)
+        self.keyboard = Keyboard(root, self.handle_key, self.handle_backspace)
 
         # Track typing state
 
         self.current_row_index = 0
-        self.current_col_index = 0
-        self.current_guess_index = ""
+        self.current_column_index = 0
+        self.current_guess_text = ""
 
     def handle_key(self, pressed_letter):
+        print("Pressed:", pressed_letter)  # Debugging statement to verify key presses
         """
         This method is called whenever the user clicks a keyboard button.
-        For now, we only print the letter for debugging.
         """
-        print("Pressed:", pressed_letter)
+        if self.current_column_index >= self.word_length:
+            return
+
+        # Place the letter in the tile
+
+        tile = self.grid.tiles[self.current_row_index][self.current_column_index]
+        tile.config(text=pressed_letter)
+
+        # Update guess text
+
+        self.current_guess_text += pressed_letter
+
+        # Move to next column
+
+        self.current_column_index += 1
+
+    def handle_backspace(self):
+        if self.current_column_index == 0:
+            return
+
+        self.current_column_index -= 1
+
+        tile = self.grid.tiles[self.current_row_index][self.current_column_index]
+        tile.config(text="")
+
+        self.current_guess_text = self.current_guess_text[:-1]
 
 # --------------------------------------------------------------------
 # Entry point
