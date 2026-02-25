@@ -216,10 +216,17 @@ class WordleGame:
     It is the "brain" of the application.
     """
 
+
     def __init__(self, root):
         self.root = root
         self.word_length = 5
         self.max_guesses = 6
+
+        # Game State
+
+        self.current_row_index = 0
+        self.current_column_index = 0
+        self.current_guess_text = ""
 
         # Load a random answer
 
@@ -246,6 +253,7 @@ class WordleGame:
         self.current_column_index = 0
         self.current_guess_text = ""
 
+
     def handle_key(self, pressed_letter):
         print("Pressed:", pressed_letter)  # Debugging statement to verify key presses
         """
@@ -267,6 +275,7 @@ class WordleGame:
 
         self.current_column_index += 1
 
+
     def handle_backspace(self):
         print("BACKSPACE pressed")  # Debugging statement to verify backspace presses
         if self.current_column_index == 0:
@@ -279,12 +288,40 @@ class WordleGame:
 
         self.current_guess_text = self.current_guess_text[:-1]
 
+
     def handle_enter(self):
         print("ENTER pressed")  # Debugging statement to verify enter presses
         # your upcoming enter logic here
 
         if len(self.current_guess_text) < self.word_length:
+            print("Guess not complete")
             return  # later: yellow warning
+
+        guess = self.current_guess_text.upper()
+        print("ENTER pressed. Guess submitted:", guess) # Debugging statement to verify the guess text
+
+        # 2. Validate guess (placeholder)
+
+        # Later: check if guess in word list
+
+        # 3. Evaluate guess (placeholder)
+
+        # Later: produce a list like ["green", "yellow", "gray", ...]
+
+        # 4. Color tile (placeholder)
+
+        # self.grid.color_row(self.current_row_index, result)
+
+        # 5. Color keyboard (placeholder)
+
+        # self.keyboard.update_colors(result)
+
+        # 6. Move to next row
+
+        self.current_row_index += 1
+        self.current_column_index = 0
+
+        self.current_guess_text = ""
 
 # --------------------------------------------------------------------
 # Entry point
