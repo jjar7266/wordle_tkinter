@@ -51,16 +51,16 @@ class WordSelector:
 
         # - only letters
 
-        valid = [
-            w.upper()
-            for w in raw_words
-            if len(w) == self.length and all(c in ascii_letters for c in w)
+        valid_words = [
+            word.upper()
+            for word in raw_words
+            if len(word) == self.length and all(char in ascii_letters for char in word)
 
         ]
-        if not valid:
+        if not valid_words:
             raise ValueError("No valid words found in wordlist.txt")
 
-        return valid
+        return valid_words
 
     def choose(self):
         """Return a random word from the valid list."""
@@ -91,10 +91,10 @@ class WordEngine:
         """
         result = []
 
-        for g, a in zip(guess, self.answer):
-            if g == a:
+        for guess_letter, answer_letter in zip(guess, self.answer):
+            if guess_letter == answer_letter:
                 result.append("correct")
-            elif g in self.answer:
+            elif guess_letter in self.answer:
                 result.append("misplaced")
             else:
                 result.append("wrong")
@@ -130,10 +130,10 @@ class TileGrid:
 
         # Create the grid of labels.
 
-        for r in range(rows):
+        for row_index in range(rows):
             row_tiles = []
-            for c in range(cols):
-                lbl = tk.Label(
+            for column_index in range(cols):
+                tile_label = tk.Label(
                     frame,
                     text="",
                     width=4,
@@ -142,8 +142,8 @@ class TileGrid:
                     relief="solid",
                     borderwidth=1,
                 )
-                lbl.grid(row=r, column=c, padx=3, pady=3)
-                row_tiles.append(lbl)
+                tile_label.grid(row=row_index, column=column_index, padx=3, pady=3)
+                row_tiles.append(tile_label)
             self.tiles.append(row_tiles)
 
 # --------------------------------------------------------------------
@@ -165,17 +165,17 @@ class Keyboard:
         frame = tk.Frame(root)
         frame.pack()
 
-        for row in layout:
+        for keyboard_row in layout:
             row_frame = tk.Frame(frame)
             row_frame.pack()
-            for letter in row:
-                btn = tk.Button(
+            for letter in keyboard_row:
+                button = tk.Button(
                     row_frame,
                     text=letter,
                     width=4,
-                    command=lambda l=letter: self.on_key(l),
+                    command=lambda selected_letter=letter: self.on_key(selected_letter),
                 )
-                btn.pack(side="left", padx=2, pady=2)
+                button.pack(side="left", padx=2, pady=2)
 
 # --------------------------------------------------------------------
 # WordleGame: Main controller
@@ -184,12 +184,12 @@ class Keyboard:
 class WordleGame:
     """
     This class ties everything together:
-    - loads the anser
+    - loads the answer
     - creates the UI
     - handles Key presses
     - tracks the current guess
 
-    It is teh "brain" of the application.
+    It is the "brain" of the application.
     """
 
     def __init__(self, root):
@@ -216,16 +216,16 @@ class WordleGame:
 
         # Track typing state
 
-        self.current_row = 0
-        self.current_col = 0
-        self.current_guess = ""
+        self.current_row_index = 0
+        self.current_col_index = 0
+        self.current_guess_index = ""
 
-    def handle_key(self, letter):
+    def handle_key(self, pressed_letter):
         """
         This method is called whenever the user clicks a keyboard button.
-        For now, we only print the letter for degugging.
+        For now, we only print the letter for debugging.
         """
-        print("Pressed:", letter)
+        print("Pressed:", pressed_letter)
 
 # --------------------------------------------------------------------
 # Entry point
