@@ -66,23 +66,36 @@ class WordleGame:
         self.game_over = False
 
         # ---------------------------------------------------------------
-        # Load a random answer
+        # Load ANSWER LIST (Wordle curated list)
         # ---------------------------------------------------------------
 
-        selector = WordSelector(
+        answer_selector = WordSelector(
             pathlib.Path(__file__).parent / "wordlist.txt",
-            self.word_length,
+            self.word_length
         )
-        self.answer = selector.choose()
+
+        # Store the cleaned list of answer words
+
+        self.answer_words = answer_selector.words
+
+        # Choose a random answer from the curated list
+
+        self.answer = answer_selector.choose()
 
         print("DEBUG ANSWER:", self.answer) # Debugging statement
 
-        # --------------------------------------------------------------
-        # Load valid guess words (same list as answers for now)
-        # --------------------------------------------------------------
+        # ---------------------------------------------------------------
+        # LOAD VALIDATION LIST (full dictionary)
+        # ---------------------------------------------------------------
 
-        with open(pathlib.Path(__file__).parent / "wordlist.txt") as f:
-            self.valid_words = {word.strip().upper() for word in f}
+        validator_selector = WordSelector(
+            pathlib.Path(__file__).parent / "words.txt",
+            self.word_length
+        )
+
+        # Store the validator list as a set for fast lookup
+
+        self.valid_words = set(validator_selector.words)
 
         # Create the game engine that evaluates guesses.
 
