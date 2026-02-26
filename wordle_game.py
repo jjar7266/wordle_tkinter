@@ -200,10 +200,15 @@ class WordleGame:
 
         print("ENTER pressed")  # Debugging statement to verify enter presses
 
+        print("BUFFER: ", repr(self.current_guess_text))  # Debugging statement
+
         # Must have exactly 5 letters
 
         if len(self.current_guess_text) != self.word_length:
-            print("Guess not complete")
+
+            # UI message
+            self.game_frame.show_message("Not enough letters")
+
             return
 
         # Convert guess to uppercase for consistency.
@@ -215,7 +220,10 @@ class WordleGame:
         # ---------------------------------------------------------------
 
         if guess not in self.valid_words:
-            print("Not a valid word")
+
+            # UI message
+            self.game_frame.show_message("Not in word list")
+
             return
 
         print("ENTER pressed. Guess submitted:", guess) # Debugging statement to verify the guess text

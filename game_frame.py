@@ -44,6 +44,21 @@ class GameFrame(tk.Frame):
 
         self.pack(pady=20)
 
+        # ----------------------------------------------------------------
+        # Message label for feedback (invalid word, not enough letters, etc.)
+        # ----------------------------------------------------------------
+
+        self.message_label = tk.Label(
+            self,
+            text="",
+            fg="white",
+            bg=self["bg"],
+            font=("Arial", 12),
+            anchor="center",
+
+        )
+        self.message_label.pack(pady=10)
+
         # -----------------------------------------------------------------
         # 1. Create the TileGrid (6 rows x 5 columns)
         # -----------------------------------------------------------------
@@ -110,4 +125,19 @@ class GameFrame(tk.Frame):
         # Give the controller access to THIS GameFrame
 
         self.controller.game_frame = self
+
+    # ------------------------------------------------------------------
+
+    def show_message(self, text):
+        """ Display a temporary message to the player."""
+        self.message_label.config(text=text, bg="black")
+        self.after(1500, self.clear_message)
+
+    def clear_message(self):
+        """Clear the message and collapse the bar."""
+        self.message_label.config(text="", bg=self["bg"])
+
+
+
+
 
