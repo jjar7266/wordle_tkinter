@@ -7,29 +7,37 @@ from word_engine import WordEngine
 from word_selector import WordSelector
 
 # --------------------------------------------------------------------
-# WordleGame: Main controller
+# WordleGame: Main controller (game logic only)
 # --------------------------------------------------------------------
 
 class WordleGame:
     """
-    This class ties the entire Wordle application together.
+    The WordleGame class controls all game logic:
 
-    Responsibilities:
-        - load a random answer word
-        - create and coordinate all UI components (TileGrid + Keyboard)
-        - Track the player's current guess (row, column, text)
-        - handle Keyboard input (letters, backspace, enter)
+        - Load a random answer word
+        - Tracks guess state (row, column, text)
+        - Handles Keyboard input (letters, backspace, enter)
         - Evaluate guesses using WordEngine
-        - Update the UI based on evaluation results
+        - Update the TileGrid + Keyboard colors
+        - Detects win/lose conditions
+        - Triggers restart via GameFrame
 
-    This class acts as the "brain" or controller of the application.
+    IMPORTANT:
+        This class NO LONGER manages layout.
+        TileGrid + Keyboard are created by GameFrame.
+        WordleGame only receives references to them.
     """
 
-    def __init__(self, root):
+    def __init__(self, parent_frame):
         """
-        Initialzize the game state, load the answer, and build the UI.
+        Initialzize the game state.
+
+        Parameters:
+            parent_frame (tk.Frame):
+                The GameFrame that owns this controller.
+                Used for restart (destroy + recreate GameFrame).
         """
-        self.root = root
+        self.game_frame = parent_frame
 
         # Core configuration
 
@@ -52,6 +60,12 @@ class WordleGame:
         self.current_guess_text = ""
 
         # ---------------------------------------------------------------
+        # Game Over Flag
+        # ---------------------------------------------------------------
+
+        self.game_over = False
+
+        # ---------------------------------------------------------------
         # Load a random answer
         # ---------------------------------------------------------------
 
@@ -63,33 +77,35 @@ class WordleGame:
 
         print("DEBUG ANSWER:", self.answer) # Debugging statement
 
+        # --------------------------------------------------------------
+        # Load valid guess words (same list as answers for now)
+        # --------------------------------------------------------------
+
+        with open(pathlib.Path(__file__).parent / "wordlist.txt") as f:
+            self.valid_words = {word.strip().upper() for word in f}
+
         # Create the game engine that evaluates guesses.
 
         self.engine = WordEngine(self.answer)
 
-        # ---------------------------------------------------------------
-        # Create the UI components
-        # ---------------------------------------------------------------
-
-        self.grid = TileGrid(root, self.max_guesses, self.word_length)
-
-        self.keyboard = Keyboard(
-            root,
-            self.handle_key,        # callback for letter buttons
-
-            self.handle_backspace,  # callback for backspace
-
-            self.handle_enter       # callback for enter
-        )
-
     # --------------------------------------------------------------------
-    # Handle letter key press
+    # Handle letter Input
     # --------------------------------------------------------------------
 
-    def handle_key(self, pressed_letter):
+    def handle_key(self, pressed_letter: str):
         """
-        Called whenever the user clicks a letter button on the keyboard.
+        Called when the user presses a letter on the on-screen keyboard.
+
+        Rules:
+            - Ignore input if the game is over.
+            - Ignore input if the row is already full.
+            - Otherwise, place the letter in the next tile.
         """
+
+        # If the game is over, ignore all input.
+
+        if self.game_over:
+            return
 
         print("Pressed:", pressed_letter)  # Debugging statement to verify key presses
 
@@ -98,14 +114,14 @@ class WordleGame:
         if self.current_column_index >= self.word_length:
             return
 
-        # Get the tile where the letter should appear.
+        # Add letter to guess text
+
+        self.current_guess_text += pressed_letter
+
+        # Update tile visually
 
         tile = self.grid.tiles[self.current_row_index][self.current_column_index]
         tile.config(text=pressed_letter)
-
-        # Add the letter to the current guess string.
-
-        self.current_guess_text += pressed_letter
 
         # Move to the next tile in the row.
 
@@ -121,6 +137,11 @@ class WordleGame:
         Removes the last letter typed in the current row.
         """
 
+        # If the game is over, ignore all input.
+
+        if self.game_over:
+            return
+
         print("BACKSPACE pressed")  # Debugging statement to verify backspace presses
 
         # if at the start of the row, nothing to delete
@@ -132,14 +153,14 @@ class WordleGame:
 
         self.current_column_index -= 1
 
-        # Clear the tile visually.
+        # Remove last letter from guess text
+
+        self.current_guess_text = self.current_guess_text[:-1]
+
+        # Clear the tile visually
 
         tile = self.grid.tiles[self.current_row_index][self.current_column_index]
         tile.config(text="")
-
-        # Remove the last character from the guess text.
-
-        self.current_guess_text = self.current_guess_text[:-1]
 
     # --------------------------------------------------------------------
     # Handle ENTER key
@@ -148,21 +169,42 @@ class WordleGame:
     def handle_enter(self):
         """
         Called when the user presses ENTER.
-        Validates the guess, evaluates it, updates the UI,
-        and moves to the next row.
+
+        Rules:
+            - Ignore if game is over.
+            - Ignore if row is not full.
+            - Validate guess is a real word.
+            - Evaluate guess using WordEngine.
+            - Color tiles + update Keyboard.
+            - Check win/lose.
+            - Move to next row if game continues.
         """
+
+        # If the game is over, ignore all input.
+
+        if self.game_over:
+            return
 
         print("ENTER pressed")  # Debugging statement to verify enter presses
 
-        # Ensure the guess is complete.
+        # Must have exactly 5 letters
 
-        if len(self.current_guess_text) < self.word_length:
+        if len(self.current_guess_text) != self.word_length:
             print("Guess not complete")
             return
 
         # Convert guess to uppercase for consistency.
 
         guess = self.current_guess_text.upper()
+
+        # ---------------------------------------------------------------
+        # Validate that the guess is a real word
+        # ---------------------------------------------------------------
+
+        if guess not in self.valid_words:
+            print("Not a valid word")
+            return
+
         print("ENTER pressed. Guess submitted:", guess) # Debugging statement to verify the guess text
 
         # ----------------------------------------------------------------
@@ -189,7 +231,7 @@ class WordleGame:
         # ----------------------------------------------------------------
 
         if guess == self.answer:
-            print("You Win!")
+            self.end_game(win=True)
             return
 
         # ----------------------------------------------------------------
@@ -200,4 +242,99 @@ class WordleGame:
         self.current_column_index = 0
 
         self.current_guess_text = ""
+
+        # --------------------------------------------------------------
+        # LOSS CHECK
+        # --------------------------------------------------------------
+
+        if self.current_row_index >= self.max_guesses:
+            self.end_game(win=False)
+            return
+
+    # --------------------------------------------------------------
+    # End Game Handler
+    # --------------------------------------------------------------
+
+    def end_game(self, win: bool):
+        """
+        Called when the player wins or loses.
+
+        Responsibilities:
+            - Set game_over flag
+            - Show a popup message
+            - Display the correct answer if lost
+            - Provide a Play Again button
+        """
+
+        self.game_over = True
+
+        # Create a popup window
+
+        popup = tk.Toplevel(self.game_frame.master)
+        popup.title("Game Over")
+        popup.config(bg="#121213")
+
+        # -----------------------------------------------------------
+        # Center the popup relative to the main window
+        # -----------------------------------------------------------
+
+        popup.geometry("+400+200")
+
+        # -----------------------------------------------------------
+        # Win or lose message
+        # -----------------------------------------------------------
+
+        if win:
+            message = "You Win!"
+        else:
+            message = f"You Lose!\nThe word was: {self.answer}"
+
+        label = tk.Label(
+            popup,
+            text=message,
+            font=("Helvetica", 18, "bold"),
+            fg="white",
+            bg="#121213",
+            pady=20
+        )
+        label.pack()
+
+        # -----------------------------------------------------------------
+        # Play Again button
+        # ----------------------------------------------------------------
+
+        play_again_button = tk.Button(
+            popup,
+            text="Play Again",
+            font=("Helvetica", 14, "bold"),
+            bg="#538d4e",
+            fg="white",
+            padx=20,
+            pady=10,
+            command=lambda: self.restart_game(popup)
+        )
+        play_again_button.pack(pady=10)
+
+    # -----------------------------------------------------------------
+    # Restart Game Handler
+    # -----------------------------------------------------------------
+
+    def restart_game(self, popup: tk.Toplevel):
+        """
+        Destroy the popup and rebuild the entire UI by destroying
+        and recreating the GameFrame.
+        """
+
+        popup.destroy()
+
+        # Destroy the entire GameFrame (grid + keyboard + controller)
+
+        self.game_frame.destroy()
+
+        # Import here to avoid circular import
+
+        from game_frame import GameFrame
+
+        root = self.game_frame.master
+        GameFrame(root)
 

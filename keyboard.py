@@ -17,7 +17,7 @@ class Keyboard:
     This class ONLY handels UI. It does NOT contain game logic.
     """
 
-    def __init__(self, root, on_key, on_backspace, on_enter):
+    def __init__(self, parent, on_key, on_backspace, on_enter):
         """
         Parameters:
             - root: (tk.Tk) The main application window.
@@ -28,7 +28,7 @@ class Keyboard:
         The keyboard is fully constructed during initialization.
         """
 
-        self.root = root
+        self.root = parent
         self.on_key = on_key  # callback function
         self.on_backspace = on_backspace
         self.on_enter = on_enter
@@ -65,8 +65,12 @@ class Keyboard:
         }
         # A frame to hold the entire keyboard.
 
-        frame = tk.Frame(root)
-        frame.pack()
+        # IMPORTANT:
+
+        # This now attaches to the parent frame (GameFrame), not root.
+
+        frame = tk.Frame(parent, bg="#121213")
+        frame.pack(pady=10)
 
         # Build each row of the keyboard.
 
@@ -103,9 +107,6 @@ class Keyboard:
                 # Regular letter keys
 
                 else:
-                    # Use selected_letter=letter to capture the current letter
-                    # and avoid late-binding issues in lambdas.
-
                     button = tk.Button(
                         row_frame,
                         text=letter,

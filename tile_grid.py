@@ -19,7 +19,7 @@ class TileGrid:
        - handle keyboard input
       """
 
-    def __init__(self, root, rows=6, cols=5):
+    def __init__(self, parent, rows=6, cols=5):
         """
         Parameters:
           - root (tk.TK): The main application window.
@@ -30,7 +30,7 @@ class TileGrid:
         and stores references so the game can update them later.
         """
 
-        self.root = root
+        self.parent = parent
         self.rows = rows
         self.cols = cols
 
@@ -43,8 +43,8 @@ class TileGrid:
 
         # A frame groups the tiles together visually.
 
-        frame = tk.Frame(root)
-        frame.pack(pady=20)
+        frame = tk.Frame(parent, bg="#ffffff")
+        frame.pack(pady=10)
 
         # Create the grid of label widgets.
 
@@ -52,7 +52,7 @@ class TileGrid:
             row_tiles = []
 
             for column_index in range(cols):
-                # Each tile starts empty and uncolored.
+                # Each tile starts empty and uncolored (white background).
 
                 tile_label = tk.Label(
                     frame,
@@ -65,7 +65,10 @@ class TileGrid:
                     font=("Helvetica", 24),
                     relief="solid",          # gives the tile a border
 
-                    borderwidth=1,
+                    borderwidth=2,
+                    bg="white",              # Option A: official Wordle look
+
+                    fg="black"
                 )
                 # Place the tile in the grid layout.
 
