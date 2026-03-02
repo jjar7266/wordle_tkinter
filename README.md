@@ -4,7 +4,7 @@
   <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
 </a>
 
-<h1 align="center">🟩🟨 Wordle (Tkinter Edition) 🟨🟩</h1>
+<h1 align="center">🟩🟨 Wordle (Tkinter Edition) Clone 🟨🟩</h1>
 <p align="center">
   <i>A polished, modern Wordle clone built entirely in Python + Tkinter</i><br>
   <b>Clean Architecture • Fully Commented • Easy to Extend</b>
@@ -127,5 +127,5 @@ v0.1 — Project Setup
 This project is licensed under the MIT License.
 
 🙌 Author
-Joe Ruiz — Coral Springs, FL
+Jose Ruiz — Coral Springs, FL
 Passionate about clean code, UI polish, and building things from scratch.
