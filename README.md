@@ -44,20 +44,6 @@ This is part of a personal journey to master GUI architecture, game loops, and c
 
 ---
 
-## 🖼️ Screenshots
-
-> Replace these placeholders with real screenshots once your UI is finalized.
-
-<p align="center">
-  <img src="https://via.placeholder.com/600x350?text=Game+Board+Screenshot" />
-</p>
-
-<p align="center">
-  <img src="https://via.placeholder.com/600x350?text=Keyboard+Screenshot" />
-</p>
-
----
-
 ## 🧠 Architecture Overview
 
 The project is intentionally structured into clear, single‑responsibility classes:
