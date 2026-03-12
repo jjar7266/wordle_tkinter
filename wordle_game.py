@@ -82,7 +82,7 @@ class WordleGame:
 
         self.answer = answer_selector.choose()
 
-        print("DEBUG ANSWER:", self.answer) # Debugging statement
+        # print("DEBUG ANSWER:", self.answer) # Debugging statement
 
         # ---------------------------------------------------------------
         # LOAD VALIDATION LIST (full dictionary)
@@ -120,7 +120,7 @@ class WordleGame:
         if self.game_over:
             return
 
-        print("Pressed:", pressed_letter)  # Debugging statement to verify key presses
+        # print("Pressed:", pressed_letter)  # Debugging statement to verify key presses
 
         # If the row is already full, ignore extra letters.
 
@@ -155,7 +155,7 @@ class WordleGame:
         if self.game_over:
             return
 
-        print("BACKSPACE pressed")  # Debugging statement to verify backspace presses
+        # print("BACKSPACE pressed")  # Debugging statement to verify backspace presses
 
         # if at the start of the row, nothing to delete
 
@@ -198,9 +198,9 @@ class WordleGame:
         if self.game_over:
             return
 
-        print("ENTER pressed")  # Debugging statement to verify enter presses
+        # print("ENTER pressed")  # Debugging statement to verify enter presses
 
-        print("BUFFER: ", repr(self.current_guess_text))  # Debugging statement
+        # print("BUFFER: ", repr(self.current_guess_text))  # Debugging statement
 
         # Must have exactly 5 letters
 
@@ -226,14 +226,14 @@ class WordleGame:
 
             return
 
-        print("ENTER pressed. Guess submitted:", guess) # Debugging statement to verify the guess text
+        # print("ENTER pressed. Guess submitted:", guess) # Debugging statement to verify the guess text
 
         # ----------------------------------------------------------------
         # 1. Evaluate the guess using WordEngine
         # ----------------------------------------------------------------
 
         result = self.engine.evaluate(guess)
-        print("Evaluation result:", result)
+        # print("Evaluation result:", result)
 
         # ----------------------------------------------------------------
         # 2. Color the row of tiles

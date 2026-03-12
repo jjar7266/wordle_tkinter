@@ -42,7 +42,7 @@ This file sets up the basic structure of the project.
 
 # CODE QUALITY
 # ✓ Add initialization block for all attributes
-# - Remove debug prints once stable
+# ✓ Commented out all the debug prints
 # - Add docstrings to new methods
 # - Add helper to reset keyboard colors (if needed)
 # - Consider extracting constants (colors, sizes) into a config module

@@ -1,81 +1,112 @@
 # --------------------------------------------------------------------
-# WordEngine: Game logic (no UI)
+# WordEngine: Core Wordle Logic (No UI)
+# --------------------------------------------------------------------
+#
+# This file contains the *pure logic* for evaluating Wordle guesses.
+# It does NOT know anything about Tkinter, tiles, colors, or the keyboard.
+#
+# The goal is to keep the logic clean, testable, and easy to understand.
 # --------------------------------------------------------------------
 
 class WordEngine:
     """
-    This class handles the core Wordle logic.
+    The WordEngine stores the secret answer and evaluates guesses.
 
     Responsibilities:
-        - Store the secret answer word
-        - Evaluate each guess and return feedback for every letter
+        - Hold the secret answer word
+        - Compare a guess to the answer
+        - Return feedback for each letter:
+              "correct"   → right letter, right position
+              "misplaced" → right letter, wrong position
+              "wrong"     → letter not in the answer at all
 
-    It does NOT know anything about:
-        - Tkinter
-        - the keyboard
-        - the tile grid
-        - colors or UI updates
-
-    This separation keeps the game logic clean and testable.
+    This class is intentionally UI‑agnostic.
     """
 
-    def __init__(self, answer: str):
+    def __init__(self, answer: str, debug: bool = False):
         """
-        Parameters:
-          - answer (str): The secret word chosen for this game.
+        Initialize the engine with the chosen answer.
 
-        The engine stores the answer so it can compare guesses against it.
+        Parameters:
+            answer (str): The secret 5‑letter word for this game.
+            debug  (bool): When True, print internal evaluation details.
+                           Useful for development and debugging.
         """
         self.answer = answer
+        self.debug = debug
 
+    # ----------------------------------------------------------------
+    # evaluate()
+    # ----------------------------------------------------------------
+    # This is the heart of the Wordle logic.
+    #
+    # IMPORTANT:
+    # Wordle requires a *two‑pass algorithm* to correctly handle
+    # duplicate letters. A simple "if letter in answer" check is NOT
+    # enough and will produce incorrect results (which is the bug you
+    # discovered!).
+    #
+    # PASS 1:
+    #   - Mark all GREEN tiles (correct position)
+    #   - Count leftover letters in the answer for yellow processing
+    #
+    # PASS 2:
+    #   - Mark YELLOW tiles only if leftover copies exist
+    #
+    # This perfectly matches real Wordle behavior.
+    # ----------------------------------------------------------------
     def evaluate(self, guess: str):
         """
-        Compare the player's guess to answer and return a list of statuses.
-
-        Each letter in the guess receives one of three labels:
-
-           - "correct"
-               The letter matches the answer *and* is in the correct position.
-
-           - "misplaced"
-                The letter exists somewhere in the answer,
-                but NOT in this position.
-
-           - "wrong"
-                The letter does not appear anywhere in the answer.
-
-        Example:
-            answer = "CRANE"
-            guess  = "CARDS"
-
-            result = ["Correct", "misplaced", "wrong", "wrong", "wrong"]
+        Evaluate a guess and return a list of statuses.
 
         Returns:
-            list[str]: A list of statuses, one for each letter in the guess.
+            list[str]: One of:
+                "correct"   → letter matches answer in same position
+                "misplaced" → letter exists but in a different position
+                "wrong"     → letter not in the answer at all
         """
-        result = []
 
-        # Compare each letter of the guess to the corresponding letter in the answer.
+        # ------------------------------------------------------------
+        # Debug output (only prints when debug mode is ON)
+        # ------------------------------------------------------------
+        if self.debug:
+            print("DEBUG → ANSWER:", self.answer)
+            print("DEBUG → GUESS :", guess)
 
-        # zip(guess, self.answer) pairs letters by position:
+        # Start with everything marked as "wrong"
+        result = ["wrong"] * len(guess)
 
-        #   ('C', 'C'), ('A', 'R'), ('R', 'A'), ...
+        # Dictionary to track leftover letters in the answer
+        # after greens are accounted for.
+        remaining = {}
 
-        for guess_letter, answer_letter in zip(guess, self.answer):
+        # ------------------------------------------------------------
+        # PASS 1: Mark greens and count leftover letters
+        # ------------------------------------------------------------
+        for i, (g, a) in enumerate(zip(guess, self.answer)):
 
-            # Case 1: Exact match (correct letter, corret position)
-
-            if guess_letter == answer_letter:
-                result.append("correct")
-
-            # Case 2: Letter exists in the answer, but in a different position
-
-            elif guess_letter in self.answer:
-                result.append("misplaced")
-
-            # Case 3: Letter does not appear in the answer at all
-
+            if g == a:
+                # Exact match → GREEN
+                result[i] = "correct"
             else:
-                result.append("wrong")
+                # Count this answer letter as "available" for yellows
+                remaining[a] = remaining.get(a, 0) + 1
+
+        # ------------------------------------------------------------
+        # PASS 2: Mark yellows using leftover counts
+        # ------------------------------------------------------------
+        for i, g in enumerate(guess):
+
+            # Skip letters already marked green
+            if result[i] == "correct":
+                continue
+
+            # If the guessed letter exists in the leftover pool,
+            # it is a YELLOW (misplaced) letter.
+            if g in remaining and remaining[g] > 0:
+                result[i] = "misplaced"
+                remaining[g] -= 1  # consume one copy
+
+            # Otherwise it stays "wrong"
 
         return result
