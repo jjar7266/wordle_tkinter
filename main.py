@@ -1,6 +1,5 @@
 import tkinter as tk
 from game_frame import GameFrame
-from settings import AppSettings
 
 """
 Wordle Clone - Tkinter OOP Version
@@ -9,11 +8,12 @@ Written by Jose "Joe" Ruiz
 
 This file sets up the basic structure of the project.
 """
+
 # Tkinter is the built-in GUI library for Python.
 # It lets us create windows, buttons, labels, and handle events.
 
 # --------------------------------------------------------------------
-# TODO LIST — Updated After Restart Logic Completion
+# TODO LIST — Updated After Debug System Completion
 # --------------------------------------------------------------------
 
 # GAME OVER FLOW
@@ -35,6 +35,14 @@ This file sets up the basic structure of the project.
 # ✓ Fix circular import by using local import inside restart_game()
 # ✓ Ensure Play Again rebuilds the entire UI cleanly
 
+# DEBUG SYSTEM
+# ✓ Add global AppSettings.debug_mode flag
+# ✓ Initialize GameFrame.debug_mode from AppSettings
+# ✓ Pass debug flag into WordEngine on creation
+# ✓ Ensure engine inherits debug state after Play Again
+# ✓ Bind CTRL+D to toggle debug mode
+# ✓ Print answer immediately when debug is turned ON
+
 # UI POLISH
 # - Decide on dark/light theme for TileGrid
 # - Add tile flip animation (optional)
@@ -43,7 +51,6 @@ This file sets up the basic structure of the project.
 
 # CODE QUALITY
 # ✓ Add initialization block for all attributes
-# ✓ Commented out all the debug prints
 # - Add docstrings to new methods
 # - Add helper to reset keyboard colors (if needed)
 # - Consider extracting constants (colors, sizes) into a config module
@@ -71,15 +78,10 @@ This file sets up the basic structure of the project.
 
 if __name__ == "__main__":
     # Create the main application window
-
     root = tk.Tk()
     root.title("Wordle - Tkinter by Joe Ruiz")
-    
-    # Create the GameFrame (the entire UI lives this frame)
 
+    # Create the GameFrame (the entire UI lives inside this frame)
     GameFrame(root)
 
     root.mainloop()
-
-
-
