@@ -99,7 +99,7 @@ class WordleGame:
 
         # Create the game engine that evaluates guesses.
 
-        self.engine = WordEngine(self.answer)
+        self.engine = WordEngine(self.answer, debug=self.game_frame.debug_mode)
 
     # --------------------------------------------------------------------
     # Handle letter Input
@@ -347,6 +347,10 @@ class WordleGame:
         """
 
         popup.destroy()
+
+        # Unbind old debug toggle so the new GameFrame can rebind it
+
+        self.game_frame.master.unbind("<Control-d>")
 
         # Destroy the entire GameFrame (grid + keyboard + controller)
 

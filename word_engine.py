@@ -110,3 +110,7 @@ class WordEngine:
             # Otherwise it stays "wrong"
 
         return result
+
+    def toggle_debug(self):
+        self.debug = not self.debug
+        print(f"DEBUG MODE -> {'ON' if self.debug else 'OFF'}")

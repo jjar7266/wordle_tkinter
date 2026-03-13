@@ -1,5 +1,6 @@
 import tkinter as tk
 from game_frame import GameFrame
+from settings import AppSettings
 
 """
 Wordle Clone - Tkinter OOP Version
@@ -73,6 +74,7 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     root.title("Wordle - Tkinter by Joe Ruiz")
+    root.state = {"debug_mode": False}
 
     # Create the GameFrame (the entire UI lives this frame)
 

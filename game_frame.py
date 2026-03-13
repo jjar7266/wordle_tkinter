@@ -3,6 +3,7 @@ import tkinter as tk
 from tile_grid import TileGrid
 from keyboard import Keyboard
 from wordle_game import WordleGame
+from settings import AppSettings
 
 # -----------------------------------------------------------------
 # GameFrame: Parent container for the entire Wordle UI
@@ -37,6 +38,10 @@ class GameFrame(tk.Frame):
             root (tk.Tk): The main application window.
         """
         super().__init__(root)
+
+        # =====================================================
+        self.debug_mode = AppSettings.debug_mode
+        # =====================================================
 
         # Pack this frame into the root window.
 
@@ -99,6 +104,10 @@ class GameFrame(tk.Frame):
 
         self.controller = WordleGame(self)
 
+        # Ensure the engine inherits the persistent debug mode
+
+        self.controller.engine.debug = self.debug_mode
+
         # ----------------------------------------------------------------
         # 3. Create the on-screen Keyboard
         # ----------------------------------------------------------------
@@ -126,6 +135,9 @@ class GameFrame(tk.Frame):
 
         self.controller.game_frame = self
 
+        # Bind CTRL+D to toggle debug mode
+        root.bind("<Control-d>", self.toggle_debug_mode)
+
     # ------------------------------------------------------------------
 
     def show_message(self, text):
@@ -136,6 +148,29 @@ class GameFrame(tk.Frame):
     def clear_message(self):
         """Clear the message and collapse the bar."""
         self.message_label.config(text="", bg=self["bg"])
+
+    def toggle_debug_mode(self, event=None):
+        """ Toggle debug mode in the WordEngine. """
+        # Flip the GameFrame-level flag
+
+        self.debug_mode = not self.debug_mode
+
+        # Persist globally
+
+        AppSettings.debug_mode = self.debug_mode
+
+        # Apply to engine
+
+        self.controller.engine.debug = self.debug_mode
+
+        print(f"DEBUG MODE -> {'ON' if self.debug_mode else 'OFF'}")
+
+        # Print the answer immediately when debug is turned ON
+
+        if self.debug_mode:
+            print(f"DEBUG -> ANSWER: {self.controller.engine.answer}")
+
+
 
 
 
