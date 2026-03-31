@@ -82,7 +82,7 @@ class WordleGame:
 
         self.answer = answer_selector.choose()
 
-        # print("DEBUG ANSWER:", self.answer) # Debugging statement
+        #print("DEBUG ANSWER:", self.answer) # Debugging statement
 
         # ---------------------------------------------------------------
         # LOAD VALIDATION LIST (full dictionary)
